@@ -1,0 +1,109 @@
+#start mysql
+docker exec -it 3a5 mysql -uroot -proot 
+
+#execute command in mysql container
+docker exec -it ${weblogicMysqlServer} mysql -u root -proot -e"show databases"
+docker exec -it ${weblogicMysqlServer} /bin/bash -c "mysql -u root -proot fda < /tmp/fda.sql"
+
+show columns from services;
+insert into services (name,stack) values ("dcaas_coins_kenny_hasher","dcaas_coins_kenny");
+
+docker exec -it 3a5 mysqldump -uroot -proot fda > mysql/fda.sql
+
+DROP TABLE IF EXISTS `services`;
+create table stats (date DATE, service_id VARCHAR(15), service_name VARCHAR(30), cpu_perc DECIMAL(5,2), mem_perc DECIMAL(5,2), mem_usage BIGINT);
+
+insert into stats (date,service_id,service_name,cpu_perc,mem_perc,mem_usage) values ("2020-04-26 17:20:00","bxdfedrsags","dcaas_kenny_coins_worker",50,20,"2.2GiB");
+select * from stats where date < '2020-04-26' and date > '2020-04-20';
+select max(cpu_perc) from stats;
+select min(cpu_perc) from stats;
+select avg(cpu_perc) from stats;
+select avg(cpu_perc) from stats where date < '2020-04-26' and date > '2020-04-20'; 
+replace into services(name,id) values ('dcaas_kenny_coins_httpd',4);
+update sizes set price=2000 where size='2XL';
+
+
+CREATE TABLE `sizes` (
+  `size` varchar(5) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `cpu` int(2) NOT NULL,
+  `memory` int(11) NOT NULL,
+  UNIQUE KEY `size` (`size`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `requested` (
+  `stack` varchar(5) NOT NULL,
+  `UL` int(3)  NOT NULL,
+  `M` int(3) NOT NULL,
+  `L` int(3) NOT NULL,
+  `XL` int(3) NOT NULL,
+  `2XL` int(3) NOT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `fda.stats`;
+create table stats (date DATE, service_id VARCHAR(15), service_name VARCHAR(30), cpu_perc DECIMAL(5,2), mem_perc DECIMAL(5,2), mem_usage BIGINT);
+LOAD DATA INFILE 'stats.txt' INTO TABLE stats FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+docker exec -it 3a5 /bin/bash -c "mysql -uroot -proot -e \"LOAD DATA local INFILE 'stats.txt' INTO TABLE fda.stats FIELDS TERMINATED BY ',' ENCLOSED BY '\\\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS\""
+
+INITIALIZATION
+------------------ 
+docker cp data/stats.txt 3a5:/
+docker cp data/services.txt 3a5:/
+docker cp data/stacks.txt 3a5:/
+docker cp data/sizes.txt 3a5:/
+docker cp data/requested.txt 3a5:/
+docker exec -it 3a5 mysql -uroot -proot 
+
+DROP TABLE IF EXISTS fda.stats; 
+create table fda.stats (date DATE, service_id VARCHAR(15), service_name VARCHAR(30), cpu_perc DECIMAL(5,2), mem_perc DECIMAL(5,2), mem_usage BIGINT);
+LOAD DATA local INFILE 'stats.txt' INTO TABLE fda.stats FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+
+DROP TABLE IF EXISTS fda.services;
+CREATE TABLE fda.services (
+  `name` varchar(30) DEFAULT NULL,
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+LOAD DATA local INFILE 'services.txt' INTO TABLE fda.services FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+
+DROP TABLE IF EXISTS fda.stacks;
+CREATE TABLE fda.stacks (
+  `name` varchar(30) DEFAULT NULL,
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+LOAD DATA local INFILE 'stacks.txt' INTO TABLE fda.stacks FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+
+DROP TABLE IF EXISTS fda.sizes;
+CREATE TABLE fda.sizes (
+  `size` varchar(5) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `cpu` int(2) NOT NULL,
+  `memory` int(11) NOT NULL,
+  UNIQUE KEY `size` (`size`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+LOAD DATA local INFILE 'sizes.txt' INTO TABLE fda.sizes FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+
+DROP TABLE IF EXISTS fda.requested;
+CREATE TABLE fda.requested (
+  `stack` varchar(5) NOT NULL,
+  `UL` int(3)  NOT NULL,
+  `M` int(3) NOT NULL,
+  `L` int(3) NOT NULL,
+  `XL` int(3) NOT NULL,
+  `2XL` int(3) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+LOAD DATA local INFILE 'requested.txt' INTO TABLE fda.requested FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS;
+
+
+
+UPDATE
+---------
+docker cp data/stats.txt 3a5:/
+docker cp data/services.txt 3a5:/
+docker cp data/stacks.txt 3a5:/
+
+docker exec -it 3a5 /bin/bash -c "mysql -uroot -proot -e \"LOAD DATA local INFILE 'stats.txt' INTO TABLE fda.stats FIELDS TERMINATED BY ',' ENCLOSED BY '\\\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS\""
+
+docker exec -it 3a5 /bin/bash -c "mysql -uroot -proot -e \"LOAD DATA local INFILE 'services.txt' INTO TABLE fda.services FIELDS TERMINATED BY ',' ENCLOSED BY '\\\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS\""
+
+docker exec -it 3a5 /bin/bash -c "mysql -uroot -proot -e \"LOAD DATA local INFILE 'stacks.txt' INTO TABLE fda.stacks FIELDS TERMINATED BY ',' ENCLOSED BY '\\\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS\""
+
